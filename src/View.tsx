@@ -264,6 +264,7 @@ export function View({
                 allowUniversalAccessFromFileURLs
                 allowFileAccessFromFileURLs
                 allowFileAccess
+                overScrollMode='never'
                 onShouldStartLoadWithRequest={(request) => {
                   if (
                     !isRendering &&
