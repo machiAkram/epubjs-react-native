@@ -405,6 +405,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const changeFontSize = useCallback((size: FontSize) => {
     book.current?.injectJavaScript(`
+      rendition.themes.override('line-height','1.5',true);
       rendition.themes.fontSize('${size}'); true
     `);
     dispatch({ type: Types.CHANGE_FONT_SIZE, payload: size });
