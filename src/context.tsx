@@ -40,6 +40,7 @@ enum Types {
   SET_IS_LOADING = 'SET_IS_LOADING',
   SET_IS_RENDERING = 'SET_IS_RENDERING',
   SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS',
+  SET_CURRENT_HTMl = 'SET_CURRENT_HTML',
 }
 
 type BookPayload = {
@@ -56,6 +57,7 @@ type BookPayload = {
   [Types.SET_IS_LOADING]: boolean;
   [Types.SET_IS_RENDERING]: boolean;
   [Types.SET_SEARCH_RESULTS]: SearchResult[];
+  [Types.SET_CURRENT_HTMl]: string;
 };
 
 type BookActions = ActionMap<BookPayload>[keyof ActionMap<BookPayload>];
@@ -74,6 +76,7 @@ type InitialState = {
   isLoading: boolean;
   isRendering: boolean;
   searchResults: SearchResult[];
+  currentHtml: string;
 };
 
 export const defaultTheme: Theme = {
@@ -116,6 +119,7 @@ const initialState: InitialState = {
   isLoading: true,
   isRendering: true,
   searchResults: [],
+  currentHtml: '',
 };
 
 function bookReducer(state: InitialState, action: BookActions): InitialState {
@@ -185,6 +189,11 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
         ...state,
         searchResults: action.payload,
       };
+    case Types.SET_CURRENT_HTMl:
+      return {
+        ...state,
+        currentHtml: action.payload,
+      };
     default:
       return state;
   }
@@ -233,6 +242,11 @@ export interface ReaderContextProps {
    * @param {string} query {@link string} text to search
    */
   search: (query: string) => void;
+
+  /**
+   * Calculate current page's html
+   */
+  calculateHtml: () => void;
 
   /**
    * @param theme {@link Theme}
@@ -334,7 +348,15 @@ export interface ReaderContextProps {
    */
   searchResults: SearchResult[];
 
+  /**
+   * Current html
+   * @returns {string} {@link string}
+   */
+  currentHtml: string;
+
   setSearchResults: (results: SearchResult[]) => void;
+
+  setCurrentHtml: (html: string) => void;
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
@@ -354,6 +376,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   getLocations: () => [],
   getCurrentLocation: () => null,
   search: () => {},
+  calculateHtml: () => {},
 
   changeTheme: () => {},
   changeFontFamily: () => {},
@@ -377,6 +400,9 @@ const ReaderContext = createContext<ReaderContextProps>({
 
   searchResults: [],
   setSearchResults: () => {},
+
+  currentHtml: '',
+  setCurrentHtml: () => {},
 });
 
 function ReaderProvider({ children }: { children: React.ReactNode }) {
@@ -479,8 +505,29 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     `);
   }, []);
 
+  const calculateHtml = useCallback(() => {
+    book.current?.injectJavaScript(`
+    Promise.all(
+      var html = '';
+      const [a, b] = [rendition.currentLocation().start.cfi, rendition.currentLocation().end.cfi];
+      book.getRange(makeRangeCfi(a, b)).then(range => {
+        html = range.toString();
+        return Promise.resolve(html);
+      }
+    ).then((html) =>
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ type: 'onHtml', html: html })
+      )
+    ); true
+    `);
+  },[]);
+
   const setSearchResults = useCallback((results: SearchResult[]) => {
     dispatch({ type: Types.SET_SEARCH_RESULTS, payload: results });
+  }, []);
+
+  const setCurrentHtml = useCallback((html: string) => {
+    dispatch({ type: Types.SET_CURRENT_HTMl, payload: html });
   }, []);
 
   const addMark = useCallback(
@@ -533,6 +580,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       getLocations,
       getCurrentLocation,
       search,
+      calculateHtml,
 
       addMark,
       removeMark,
@@ -556,6 +604,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
       searchResults: state.searchResults,
       setSearchResults,
+
+      currentHtml: state.currentHtml,
+      setCurrentHtml,
     }),
     [
       addMark,
@@ -570,6 +621,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       registerBook,
       removeMark,
       search,
+      calculateHtml,
       setAtEnd,
       setAtStart,
       setCurrentLocation,
@@ -579,6 +631,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       setLocations,
       setProgress,
       setSearchResults,
+      setCurrentHtml,
       setTotalLocations,
       state.atEnd,
       state.atStart,
@@ -589,6 +642,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       state.locations,
       state.progress,
       state.searchResults,
+      state.currentHtml,
       state.theme,
       state.totalLocations,
     ]

@@ -12,6 +12,7 @@ export function useReader() {
     getLocations,
     getCurrentLocation,
     search,
+    calculateHtml,
     addMark,
     removeMark,
     theme,
@@ -24,6 +25,7 @@ export function useReader() {
     isLoading,
     key,
     searchResults,
+    currentHtml,
   } = useContext(ReaderContext);
 
   return {
@@ -36,6 +38,7 @@ export function useReader() {
     getLocations,
     getCurrentLocation,
     search,
+    calculateHtml,
     addMark,
     removeMark,
     theme,
@@ -48,6 +51,7 @@ export function useReader() {
     isLoading,
     key,
     searchResults,
+    currentHtml,
   } as Pick<
     ReaderContextProps,
     | 'changeFontSize'
@@ -59,6 +63,7 @@ export function useReader() {
     | 'getLocations'
     | 'getCurrentLocation'
     | 'search'
+    | 'calculateHtml'
     | 'addMark'
     | 'removeMark'
     | 'theme'
@@ -71,5 +76,6 @@ export function useReader() {
     | 'isLoading'
     | 'key'
     | 'searchResults'
+    | 'currentHtml'
   >;
 }

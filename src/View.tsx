@@ -24,6 +24,7 @@ export function View({
   onLocationChange = () => {},
   onRendered = () => {},
   onSearch = () => {},
+  onHtml = () => {},
   onLocationsReady = () => {},
   onSelected = () => {},
   onMarkPressed = () => {},
@@ -61,6 +62,7 @@ export function View({
     changeTheme,
     setKey,
     setSearchResults,
+    setCurrentHtml,
     theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
@@ -127,6 +129,13 @@ export function View({
       setSearchResults(results);
 
       return onSearch(results);
+    }
+
+    if (type === 'onHtml') {
+      const { html } = parsedEvent;
+      setCurrentHtml(html);
+
+      return onHtml(html);
     }
 
     if (type === 'onLocationsReady') {

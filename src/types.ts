@@ -146,6 +146,12 @@ export interface ReaderProps {
    */
   onSearch?: (results: SearchResult[]) => void;
   /**
+   * Called once the current page's html has been calculated
+   * @param {string} html
+   * @returns {void} void
+   */
+  onHtml?: (html: string) => void;
+  /**
    * Called once the locations has been generated
    * @param {string} locations
    * @returns {void} void
