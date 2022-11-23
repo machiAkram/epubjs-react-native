@@ -507,18 +507,14 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const calculateHtml = useCallback(() => {
     book.current?.injectJavaScript(`
-    Promise.all(
-      var html = '';
-      const [a, b] = [rendition.currentLocation().start.cfi, rendition.currentLocation().end.cfi];
+      let html = '';
+      const [a, b] = [rendition.currentLocation().start.cfi, rendition.currentLocation().end.cfi]
       book.getRange(makeRangeCfi(a, b)).then(range => {
+        //html = range.cloneContents().childNodes[0].innerHTML;
         html = range.toString();
-        return Promise.resolve(html);
-      }
-    ).then((html) =>
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({ type: 'onHtml', html: html })
-      )
-    ); true
+      }).finally(() => window.ReactNativeWebView.postMessage(
+        JSON.stringify({ type: 'onHtml', html: html })  
+      )); true
     `);
   },[]);
 
