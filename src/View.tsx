@@ -274,6 +274,7 @@ export function View({
                 allowFileAccessFromFileURLs
                 allowFileAccess
                 overScrollMode='never'
+                bounces={false}
                 onShouldStartLoadWithRequest={(request) => {
                   if (
                     !isRendering &&
