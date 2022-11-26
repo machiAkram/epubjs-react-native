@@ -97,7 +97,7 @@ export default `
         .then(function () {
           if (initialLocations) {
             book.locations.load(initialLocations);
-          } else book.locations.generate(1600);
+          } else book.locations.generate(1000);
 
           var displayed = rendition.display();
 
