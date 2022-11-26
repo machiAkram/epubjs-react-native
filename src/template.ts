@@ -97,39 +97,63 @@ export default `
         .then(function () {
           if (initialLocations) {
             book.locations.load(initialLocations);
-          } else book.locations.generate(1000);
+            var displayed = rendition.display();
 
-          var displayed = rendition.display();
-
-          displayed.then(function () {
-            var viewer = document.getElementById("viewer");
+            displayed.then(function () {
             var currentLocation = rendition.currentLocation();
 
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: "onReady",
-              totalLocations: book.locations.total,
-              currentLocation: currentLocation,
-              progress: book.locations.percentageFromCfi(currentLocation.start.cfi),
-            }));
-          });
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: "onReady",
+                totalLocations: book.locations.length(),
+                currentLocation: currentLocation,
+                progress: book.locations.percentageFromCfi(currentLocation.start.cfi),
+              }));
+            });
 
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: "onLocationsReady",
-            epubKey: book.key(),
-            locations: book.locations.save(),
-          }));
+            // window.ReactNativeWebView.postMessage(JSON.stringify({
+            //   type: "onLocationsReady",
+            //   epubKey: book.key(),
+            //   locations: book.locations.save(),
+            // }));
 
-          book.loaded.navigation.then(function (toc) {
+            book.loaded.navigation.then(function (toc) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'onNavigationLoaded',
+                toc: toc,
+              }));
+            });
+          } else book.locations.generate(950).then(() => {
+            var displayed = rendition.display();
+
+            displayed.then(function () {
+              var currentLocation = rendition.currentLocation();
+  
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: "onReady",
+                totalLocations: book.locations.length(),
+                currentLocation: currentLocation,
+                progress: book.locations.percentageFromCfi(currentLocation.start.cfi),
+              }));
+            });
+  
             window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'onNavigationLoaded',
-              toc: toc,
+              type: "onLocationsReady",
+              epubKey: book.key(),
+              locations: book.locations.save(),
             }));
+  
+            book.loaded.navigation.then(function (toc) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'onNavigationLoaded',
+                toc: toc,
+              }));
+            });
           });
         })
         .catch(function (err) {
           window.ReactNativeWebView.postMessage(JSON.stringify({
           type: "onDisplayError",
-          reason: reason
+          reason: err
         }));
       });
 
@@ -144,7 +168,7 @@ export default `
 
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: "onLocationChange",
-          totalLocations: book.locations.total,
+          totalLocations: book.locations.length(),
           currentLocation: location,
           progress: percentage,
         }));
