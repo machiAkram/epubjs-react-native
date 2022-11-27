@@ -217,6 +217,12 @@ export interface ReaderContextProps {
   goToLocation: (cfi: ePubCfi) => void;
 
   /**
+   * Go to specific location in the book
+   * @param {number} target {@link number}
+   */
+  goToLocationWithNumber: (location: number) => void;
+
+  /**
    * Go to previous page in the book
    */
   goPrevious: () => void;
@@ -371,6 +377,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   setIsRendering: () => {},
 
   goToLocation: () => {},
+  goToLocationWithNumber: () => {},
   goPrevious: () => {},
   goNext: () => {},
   getLocations: () => [],
@@ -473,6 +480,13 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
   }, []);
 
+  const goToLocationWithNumber = useCallback((location: number) => {
+    book.current?.injectJavaScript(`
+      var cfi = book.locations.cfiFromLocation(${location});
+      rendition.display(cfi.toString()); true
+    `);
+  }, []);
+
   const goPrevious = useCallback(() => {
     book.current?.injectJavaScript(`rendition.prev(); true`);
   }, []);
@@ -571,6 +585,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       setIsRendering,
 
       goToLocation,
+      goToLocationWithNumber,
       goPrevious,
       goNext,
       getLocations,
@@ -614,6 +629,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       goNext,
       goPrevious,
       goToLocation,
+      goToLocationWithNumber,
       registerBook,
       removeMark,
       search,

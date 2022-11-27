@@ -7,6 +7,7 @@ export function useReader() {
     changeFontFamily,
     changeTheme,
     goToLocation,
+    goToLocationWithNumber,
     goPrevious,
     goNext,
     getLocations,
@@ -33,6 +34,7 @@ export function useReader() {
     changeFontFamily,
     changeTheme,
     goToLocation,
+    goToLocationWithNumber,
     goPrevious,
     goNext,
     getLocations,
@@ -58,6 +60,7 @@ export function useReader() {
     | 'changeFontFamily'
     | 'changeTheme'
     | 'goToLocation'
+    | 'goToLocationWithNumber'
     | 'goPrevious'
     | 'goNext'
     | 'getLocations'
